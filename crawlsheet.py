@@ -31,7 +31,7 @@ class MusicsheetSpider(scrapy.Spider):
         'IMAGES_STORE':os.path.join(os.getcwd(),'musicsheet','sheet_img')
     }
 
-    def __init__(self, url='http://m.hqgq.com/qinpu/25970.html'):
+    def __init__(self, url='http://m.hqgq.com/qinpu/51610.html'):
         super().__init__()
         self.start_urls=[url]
 
