@@ -3,7 +3,7 @@ import scrapy
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.http import Request
 from musicsheetdb import *
-import os
+from config import *
 
 class MusicsheetImagePipeline(ImagesPipeline):
     def get_media_requests(self, item, info):
@@ -29,7 +29,7 @@ class MusicsheetSpider(scrapy.Spider):
         'ITEM_PIPELINES': {
             'crawlsheet.MusicsheetImagePipeline': 1
         },
-        'IMAGES_STORE':os.path.join(os.getcwd(),'musicsheet','sheet_img')
+        'IMAGES_STORE':img_folder
     }
 
     def __init__(self, url='http://m.hqgq.com/qinpu/51610.html'):
@@ -39,11 +39,16 @@ class MusicsheetSpider(scrapy.Spider):
     def parse(self, response):
         sheet = MusicsheetItem()
         #Image url need to be absolute path
+        url = response.url
         sheet['image_urls'] = response.xpath('//div[@class="qupucont"]/img/@src').extract()
         sheet['image_order'] = list(range(1,len(sheet['image_urls'])+1))
         sheet['sheet_name'] = response.xpath('//h1/text()').extract()[-1]
 
         create_table()
-        title_entry(sheet['sheet_name'])
-        close_connection()
+        link_exist = check_link(url)
+        if link_exist:
+            print('Link already crawled')
+        else:
+            title_entry(sheet['sheet_name'], url)
+        commit_and_close()
         # return sheet
