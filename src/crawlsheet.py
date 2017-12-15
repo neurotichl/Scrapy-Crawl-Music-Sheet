@@ -2,6 +2,7 @@
 import scrapy
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.http import Request
+from musicsheetdb import *
 import os
 
 class MusicsheetImagePipeline(ImagesPipeline):
@@ -38,7 +39,11 @@ class MusicsheetSpider(scrapy.Spider):
     def parse(self, response):
         sheet = MusicsheetItem()
         #Image url need to be absolute path
-        sheet['image_urls'] = response.xpath('//div[@class="qupucont"]/img/@src').extract()[:1]
+        sheet['image_urls'] = response.xpath('//div[@class="qupucont"]/img/@src').extract()
         sheet['image_order'] = list(range(1,len(sheet['image_urls'])+1))
         sheet['sheet_name'] = response.xpath('//h1/text()').extract()[-1]
-        return sheet
+
+        create_table()
+        title_entry(sheet['sheet_name'])
+        close_connection()
+        # return sheet
